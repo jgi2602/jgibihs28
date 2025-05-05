@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CBAM 시뮬레이터</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 40px;
+      background: #f4f4f9;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #3498db;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #27ae60;
+    }
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      color: #555;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <h1>탄소국경세(CBAM) 영향 시뮬레이터</h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>산업</th>
+        <th>탄소 배출량<br>(톤)</th>
+        <th>수출량<br>(단위)</th>
+        <th>기존 가격<br>($/단위)</th>
+        <th>CBAM 세율<br>(%)</th>
+        <th>세금 적용 후 가격</th>
+        <th>예상 수출량</th>
+        <th>탄소세 총액</th>
+      </tr>
+    </thead>
+    <tbody id="dataTable">
+      <tr><td><input value="철강"></td><td><input type="number" value="1000" class="emission"></td><td><input type="number" value="500" class="exportQty"></td><td><input type="number" value="1200" class="basePrice"></td><td><input type="number" value="10" class="cbamRate"></td><td class="newPrice">-</td><td class="newQty">-</td><td class="taxTotal">-</td></tr>
+      <tr><td><input value="알루미늄"></td><td><input type="number" value="800" class="emission"></td><td><input type="number" value="300" class="exportQty"></td><td><input type="number" value="1500" class="basePrice"></td><td><input type="number" value="12" class="cbamRate"></td><td class="newPrice">-</td><td class="newQty">-</td><td class="taxTotal">-</td></tr>
+      <tr><td><input value="시멘트"></td><td><input type="number" value="2000" class="emission"></td><td><input type="number" value="400" class="exportQty"></td><td><input type="number" value="700" class="basePrice"></td><td><input type="number" value="15" class="cbamRate"></td><td class="newPrice">-</td><td class="newQty">-</td><td class="taxTotal">-</td></tr>
+      <tr><td><input value="석유화학제품"></td><td><input type="number" value="1800" class="emission"></td><td><input type="number" value="350" class="exportQty"></td><td><input type="number" value="900" class="basePrice"></td><td><input type="number" value="13" class="cbamRate"></td><td class="newPrice">-</td><td class="newQty">-</td><td class="taxTotal">-</td></tr>
+      <tr><td><input value="자동차"></td><td><input type="number" value="600" class="emission"></td><td><input type="number" value="250" class="exportQty"></td><td><input type="number" value="20000" class="basePrice"></td><td><input type="number" value="5" class="cbamRate"></td><td class="newPrice">-</td><td class="newQty">-</td><td class="taxTotal">-</td></tr>
+      <tr><td><input value="반도체"></td><td><input type="number" value="300" class="emission"></td><td><input type="number" value="800" class="exportQty"></td><td><input type="number" value="1500" class="basePrice"></td><td><input type="number" value="3" class="cbamRate"></td><td class="newPrice">-</td><td class="newQty">-</td><td class="taxTotal">-</td></tr>
+      <tr><td><input value="유기화학제품"></td><td><input type="number" value="1200" class="emission"></td><td><input type="number" value="400" class="exportQty"></td><td><input type="number" value="1300" class="basePrice"></td><td><input type="number" value="9" class="cbamRate"></td><td class="newPrice">-</td><td class="newQty">-</td><td class="taxTotal">-</td></tr>
+      <tr><td><input value="비료"></td><td><input type="number" value="1000" class="emission"></td><td><input type="number" value="450" class="exportQty"></td><td><input type="number" value="600" class="basePrice"></td><td><input type="number" value="8" class="cbamRate"></td><td class="newPrice">-</td><td class="newQty">-</td><td class="taxTotal">-</td></tr>
+      <tr><td><input value="플라스틱"></td><td><input type="number" value="900" class="emission"></td><td><input type="number" value="500" class="exportQty"></td><td><input type="number" value="1100" class="basePrice"></td><td><input type="number" value="7" class="cbamRate"></td><td class="newPrice">-</td><td class="newQty">-</td><td class="taxTotal">-</td></tr>
+    </tbody>
+  </table>
+
+  <button onclick="calculate()">시뮬레이션 실행</button>
+
+  <footer>만든 사람: 부산국제고등학교 정건일</footer>
+
+  <script>
+    function calculate() {
+      const rows = document.querySelectorAll('#dataTable tr');
+      rows.forEach(row => {
+        const emission = parseFloat(row.querySelector('.emission').value);
+        const qty = parseFloat(row.querySelector('.exportQty').value);
+        const price = parseFloat(row.querySelector('.basePrice').value);
+        const rate = parseFloat(row.querySelector('.cbamRate').value);
+
+        const newPrice = price * (1 + rate / 100);
+        const newQty = qty * (1 - (rate / 100) * 0.7); // 예: 세율 10% → 수출량 약 7% 감소
+        const taxTotal = emission * rate;
+
+        row.querySelector('.newPrice').textContent = `$${newPrice.toFixed(2)}`;
+        row.querySelector('.newQty').textContent = `${newQty.toFixed(1)} 단위`;
+        row.querySelector('.taxTotal').textContent = `$${taxTotal.toFixed(0)}`;
+      });
+    }
+  </script>
+</body>
+</html>
